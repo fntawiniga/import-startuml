@@ -7,7 +7,7 @@ This script will merge two StarUML files
 -The scripts fixes the references in the new file
 
 Sample execution command
-  .\Merge-StarUml.ps1 -SrcFile <file1.mdj> -FromLine <fromLine> -ToLine <toLine> -DstFile <file2.msj> -AfterLine <afterLine>
+  .\Merge-StarUml.ps1 -SrcFile <file1.mdj> -FromLine <fromLine> -ToLine <toLine> -DstFile <file2.mdj> -AfterLine <afterLine> -OutFile <file3.mdj>
 #>
 
 Param

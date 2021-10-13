@@ -7,6 +7,6 @@ This script will merge two StarUML files
 
 # Sample execution command
 ```powershell
-.\Merge-StarUml.ps1 -SrcFile <file1.mdj> -FromLine <fromLine> -ToLine <toLine> -DstFile <file2.msj> -AfterLine <afterLine>
+.\Merge-StarUml.ps1 -SrcFile <file1.mdj> -FromLine <fromLine> -ToLine <toLine> -DstFile <file2.mdj> -AfterLine <afterLine> -OutFile <file3.mdj>
 ```
   

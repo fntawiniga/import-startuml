@@ -20,6 +20,36 @@ Param
     [String]$OutFile = $(Throw "Output File (-DstFile) Required")
 )
 
+
+Function Traverse {
+    Param (
+        [PSCustomObject] $JsonObject,
+        [String] $ParentId
+	)
+
+    Write-Host "$($ParentId)" -ForegroundColor Green
+    Write-Host "$($JsonObject)" -ForegroundColor Yellow
+
+    If(($JsonObject -ne $Null) -And ($JsonObject.GetType().Name -eq "PSCustomObject")){
+        $InnerParentId = $Null
+        ForEach ($Prop in $JsonObject.PSObject.Properties) {
+            If($Prop.Name -eq "_id"){
+                 $InnerParentId = $Prop.Value
+            }
+
+            If($Prop.Name -eq "_parent"){
+                 $JsonObject._parent.'$ref' = $ParentId
+            }
+
+            If(($Prop.Name -eq "ownedElements") -Or ($Prop.Name -eq "ownedViews") -Or ($Prop.Name -eq "subViews")){
+                ForEach($Element in $Prop.Value) {
+                   Traverse -JsonObject $Element -ParentId $InnerParentId
+                }
+            }            
+        }
+    }    
+}
+
 $SrcFileContent = Get-Content $SrcFile
 
 If (($FromLine -lt 1) -Or ($FromLine -gt $SrcFileContent.Length)) {
@@ -39,12 +69,25 @@ Try {
     # Merge
     $SubSrcFileContent = $SrcFileContent[($FromLine - 1) .. ($ToLine -1)]
     $OutputFileContent = @()
+
+    # Add , at the end
+    $DstFileContent[($AfterLine -1)] = $DstFileContent[($AfterLine -1)] + ","
     
     $OutputFileContent += , $DstFileContent[0 .. ($AfterLine -1)]
     $OutputFileContent += , $SubSrcFileContent
     $OutputFileContent += , $DstFileContent[$AfterLine .. ($DstFileContent.Length -1)]
+
     
     Set-Content -Path $OutFile -Value $OutputFileContent
+
+    $OutputFileContent = Get-Content $OutFile
+
+    $JsonObject = ($OutputFileContent | ConvertFrom-Json)
+
+    Traverse -JsonObject $JsonObject -ParentId $Null
+
+    $OutputFileContent = $JsonObject | ConvertTo-Json 
+    
 }
 Catch {
 
